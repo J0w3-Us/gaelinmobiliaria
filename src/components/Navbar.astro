@@ -1,0 +1,151 @@
+---
+import { SITE_CONFIG } from '../shared/config/site-settings';
+
+const navLinks = [
+  { label: 'Recorridos', href: '#recorridos' },
+  { label: 'Lotes', href: '#lotes' },
+
+];
+---
+
+<header
+  id="navbar"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+>
+  {/* Glassmorphism backdrop — starts transparent, fills on scroll */}
+  <div
+    id="navbar-bg"
+    class="absolute inset-0 opacity-0 transition-opacity duration-500 bg-gradient-to-b from-black/80 to-black/0 backdrop-blur-md border-b border-[#C9A84C]/0"
+    aria-hidden="true"
+  ></div>
+
+  <nav class="relative z-10 flex items-center justify-between px-6 md:px-12 lg:px-24 h-16 md:h-20">
+
+    {/* ── Logo / Wordmark ── */}
+    <a
+      href="/"
+      class="flex flex-col leading-tight group"
+      aria-label={`${SITE_CONFIG.siteName} – inicio`}
+    >
+      <span
+        class="text-[#F5E6C8] text-sm md:text-base font-bold tracking-[0.18em] uppercase transition-colors duration-200 group-hover:text-[#C9A84C]"
+      >
+        {SITE_CONFIG.siteName}
+      </span>
+      <span
+        class="text-[#C9A84C] text-[0.6rem] md:text-[0.65rem] font-medium tracking-[0.22em] uppercase"
+      >
+        {SITE_CONFIG.eyebrow}
+      </span>
+    </a>
+
+    {/* ── Desktop Nav Links ── */}
+    <ul class="hidden md:flex items-center gap-8 lg:gap-10" role="list">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class="nav-link relative text-[#F5E6C8]/80 text-sm font-medium tracking-[0.12em] uppercase transition-colors duration-200 hover:text-[#C9A84C] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-px after:bg-[#C9A84C] after:transition-all after:duration-300 hover:after:w-full"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {/* ── Mobile Hamburger ── */}
+    <button
+      id="menu-toggle"
+      class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-[5px] focus:outline-none group"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <span class="menu-bar w-6 h-px bg-[#F5E6C8] transition-all duration-300 origin-center"></span>
+      <span class="menu-bar w-6 h-px bg-[#F5E6C8] transition-all duration-300"></span>
+      <span class="menu-bar w-6 h-px bg-[#F5E6C8] transition-all duration-300 origin-center"></span>
+    </button>
+  </nav>
+
+  {/* ── Mobile Drawer ── */}
+  <div
+    id="mobile-menu"
+    class="md:hidden overflow-hidden max-h-0 transition-all duration-500 ease-in-out bg-[#0f0f0f]/95 backdrop-blur-lg border-b border-[#C9A84C]/20"
+    aria-hidden="true"
+  >
+    <ul class="flex flex-col px-6 pb-8 pt-4 gap-6" role="list">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class="mobile-nav-link block text-[#F5E6C8]/80 text-base font-medium tracking-[0.15em] uppercase transition-colors duration-200 hover:text-[#C9A84C]"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</header>
+
+<script>
+  // ── Scroll-aware background ──────────────────────────────────────────────
+  const navbarBg = document.getElementById('navbar-bg');
+  const navbar = document.getElementById('navbar');
+
+  const handleScroll = () => {
+    const scrolled = window.scrollY > 40;
+    if (navbarBg) {
+      navbarBg.style.opacity = scrolled ? '1' : '0';
+    }
+    if (navbar && scrolled) {
+      navbar.classList.add('scrolled');
+    } else if (navbar) {
+      navbar.classList.remove('scrolled');
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll(); // run on mount
+
+  // ── Mobile hamburger toggle ────────────────────────────────────────────
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuBars = document.querySelectorAll<HTMLElement>('.menu-bar');
+
+  let isOpen = false;
+
+  const openMenu = () => {
+    isOpen = true;
+    if (mobileMenu) {
+      mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+      mobileMenu.setAttribute('aria-hidden', 'false');
+    }
+    menuToggle?.setAttribute('aria-expanded', 'true');
+    // Animate bars → X
+    if (menuBars[0]) { menuBars[0].style.transform = 'translateY(6px) rotate(45deg)'; }
+    if (menuBars[1]) { menuBars[1].style.opacity = '0'; menuBars[1].style.transform = 'scaleX(0)'; }
+    if (menuBars[2]) { menuBars[2].style.transform = 'translateY(-6px) rotate(-45deg)'; }
+  };
+
+  const closeMenu = () => {
+    isOpen = false;
+    if (mobileMenu) {
+      mobileMenu.style.maxHeight = '0';
+      mobileMenu.setAttribute('aria-hidden', 'true');
+    }
+    menuToggle?.setAttribute('aria-expanded', 'false');
+    // Restore bars
+    if (menuBars[0]) { menuBars[0].style.transform = ''; }
+    if (menuBars[1]) { menuBars[1].style.opacity = '1'; menuBars[1].style.transform = ''; }
+    if (menuBars[2]) { menuBars[2].style.transform = ''; }
+  };
+
+  menuToggle?.addEventListener('click', () => {
+    isOpen ? closeMenu() : openMenu();
+  });
+
+  // Close mobile menu when a link is clicked
+  document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+</script>

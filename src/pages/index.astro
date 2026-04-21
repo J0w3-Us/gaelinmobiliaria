@@ -1,11 +1,42 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+/**
+ * index.astro — Página principal de Ciudad Maderas.
+ *
+ * Responsabilidad única: montar las secciones en orden.
+ * Toda la lógica y datos de cada sección viven en su feature/layout.
+ *
+ * Orden de secciones:
+ *   Hero → Showcase (recorridos) → Lotes → Contacto
+ *   ContactFab (FAB global, fixed) montado al final del body.
+ */
+import MainLayout from '../layouts/MainLayout.astro';
+import Hero from '../features/hero/Hero.astro';
+import Showcase from '../features/showcase/Showcase.astro';
+import LotesSection from '../features/lotes/LotesSection.astro';
+import ContactSection from '../features/contact/ContactSection.astro';
+import { ContactFab } from '../features/contact';
+import { SITE_CONFIG } from '../shared/config/site-settings';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CONFIG.whatsappMessage}`;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<MainLayout
+  title="Gael Inmobiliaria | Ciudad Maderas – Lotes Residenciales"
+  description="Vive o invierte en el mejor desarrollo de la región. Lotes residenciales en Ciudad Maderas."
+>
+  <Hero />
+  <Showcase />
+  <LotesSection />
+  <ContactSection />
+
+  {/*
+    ContactFab — speed-dial global.
+    Mounted last so it renders on top of all content (z-50 via fixed).
+    client:idle → hydrates after first paint, never blocks LCP.
+  */}
+  <ContactFab
+    client:idle
+    whatsappUrl={whatsappUrl}
+    phoneNumber={SITE_CONFIG.phoneNumber}
+  />
+</MainLayout>

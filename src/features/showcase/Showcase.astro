@@ -1,0 +1,41 @@
+---
+/**
+ * Showcase.astro — Wraps the VideoGrid React island.
+ *
+ * Data lives here (server-side), not in index.astro.
+ * VideoGrid only receives serializable props.
+ */
+import { VideoGrid } from './index';
+import type { VideoItem } from '../../shared/types/index.d';
+
+const videos: VideoItem[] = [
+  {
+    id: 'recorrido-1',
+    title: 'Recorrido General — Ciudad Maderas',
+    subtitle: 'Áreas comunes y acceso principal',
+    videoWebm: '/src/assets/Videos/recorrido-1.webm',
+    videoMp4:  '/src/assets/Videos/recorrido-1.mp4',
+    poster:    '/src/assets/images/recorrido-1-poster.avif',
+    duration:  '0:24',
+  },
+  {
+    id: 'recorrido-2',
+    title: 'Vista de Amenidades',
+    subtitle: 'Piscina, jardines y áreas recreativas',
+    videoWebm: '/src/assets/Videos/recorrido-2.webm',
+    videoMp4:  '/src/assets/Videos/recorrido-2.mp4',
+    poster:    '/src/assets/images/recorrido-2-poster.avif',
+    duration:  '0:24',
+  },
+];
+---
+
+<!--
+  client:visible → VideoGrid only hydrates when the section enters the viewport.
+  The video DOM is never created until the user clicks a card (handled inside VideoGrid).
+-->
+<VideoGrid
+  client:visible
+  videos={videos}
+  sectionTitle="Recorridos Virtuales"
+/>

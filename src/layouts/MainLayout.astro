@@ -1,0 +1,51 @@
+---
+import '../styles/globals.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from './Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Gael Inmobiliaria | Ciudad Maderas – Lotes Residenciales",
+  description = "Vive o invierte en el mejor desarrollo de la región. Lotes residenciales en Ciudad Maderas. Contáctanos para conocer disponibilidad y precios."
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    {/* ── SEO ── */}
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+
+    {/* ── Google Fonts preconnect (font loaded in globals.css) ── */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  </head>
+
+  <body class="bg-[#0f0f0f] text-[#F5E6C8] antialiased">
+
+    {/* ── Navbar — fixed, above all content ── */}
+    <Navbar />
+
+    {/* ── Page sections — injected by each page ── */}
+    <main>
+      <slot />
+    </main>
+
+    {/* ── Footer — always rendered at the bottom ── */}
+    <Footer />
+
+  </body>
+</html>

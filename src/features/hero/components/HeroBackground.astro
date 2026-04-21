@@ -1,0 +1,70 @@
+---
+interface Props {
+  videoWebm: string;
+  videoMp4: string;
+  poster: string;
+  width?: number;
+  height?: number;
+}
+
+const { videoWebm, videoMp4, poster, width = 848, height = 480 } = Astro.props;
+---
+
+<section
+  id="hero"
+  class="relative w-full overflow-hidden"
+  style="height: 100svh"
+  aria-label="Sección principal"
+>
+  {/* ── Background video — decorative, no controls ── */}
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    poster={poster}
+    width={width}
+    height={height}
+    class="absolute inset-0 w-full h-full object-cover"
+    style="z-index: 0"
+    aria-hidden="true"
+  >
+    <source src={videoWebm} type="video/webm" />
+    <source src={videoMp4} type="video/mp4" />
+  </video>
+
+  {/*
+    ── Multi-layer overlay system ────────────────────────────────────────────
+    Layer 1 (cinematic vignette):  subtle dark ring around all edges
+    Layer 2 (bottom fade):         strong black gradient from bottom → center
+    Layer 3 (top scrim):           light black at top for navbar legibility
+    Together these preserve video colour in the centre while keeping
+    all text areas highly legible — no more washed-out headings.
+  */}
+
+  {/* Layer 1 — cinematic vignette */}
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="z-index: 1; background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%)"
+    aria-hidden="true"
+  ></div>
+
+  {/* Layer 2 — strong bottom-to-midpoint fade (where copy lives) */}
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.60) 30%, rgba(0,0,0,0.15) 55%, transparent 75%)"
+    aria-hidden="true"
+  ></div>
+
+  {/* Layer 3 — top scrim for navbar */}
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="z-index: 3; background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 18%)"
+    aria-hidden="true"
+  ></div>
+
+  {/* ── Interactive children — sit above all overlays ── */}
+  <div class="absolute inset-0" style="z-index: 10">
+    <slot />
+  </div>
+</section>

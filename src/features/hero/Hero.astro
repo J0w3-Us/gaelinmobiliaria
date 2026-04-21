@@ -1,0 +1,33 @@
+---
+/**
+ * Hero.astro — Orchestrates the entire Hero section.
+ *
+ * Responsibilities:
+ *   - Imports HeroBackground.astro (zero-hydration video layer)
+ *   - Slots HeroSection React island (client:load) for interactive content
+ *   - Reads all video/poster paths from SITE_CONFIG
+ *
+ * This component is intentionally kept as .astro so that the <video>
+ * element never enters the React hydration tree.
+ */
+import HeroBackground from './components/HeroBackground.astro';
+import { HeroSection } from './index';
+import { SITE_CONFIG } from '../../shared/config/site-settings';
+---
+
+<HeroBackground
+  videoWebm={SITE_CONFIG.heroVideoWebm}
+  videoMp4={SITE_CONFIG.heroVideoMp4}
+  poster={SITE_CONFIG.heroPoster}
+  width={848}
+  height={480}
+>
+  <HeroSection
+    client:load
+    title={SITE_CONFIG.heroTitle}
+    subtitle={SITE_CONFIG.heroSubtitle}
+    videoModalWebm={SITE_CONFIG.modalVideoWebm}
+    videoModalMp4={SITE_CONFIG.modalVideoMp4}
+    posterModal={SITE_CONFIG.modalPoster}
+  />
+</HeroBackground>
