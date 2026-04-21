@@ -4,6 +4,9 @@
  *
  * Data lives here (server-side), not in index.astro.
  * VideoGrid only receives serializable props.
+ *
+ * Paths → /assets/videos/* and /assets/images/*
+ * Files live in public/ → copied verbatim to dist/ → same URL in dev & prod.
  */
 import { VideoGrid } from './index';
 import type { VideoItem } from '../../shared/types/index.d';
@@ -13,18 +16,18 @@ const videos: VideoItem[] = [
     id: 'recorrido-1',
     title: 'Recorrido General — Ciudad Maderas',
     subtitle: 'Áreas comunes y acceso principal',
-    videoWebm: '/src/assets/Videos/recorrido-1.webm',
-    videoMp4:  '/src/assets/Videos/recorrido-1.mp4',
-    poster:    '/src/assets/images/recorrido-1-poster.avif',
+    videoWebm: '/assets/videos/recorrido-1.webm',
+    videoMp4:  '/assets/videos/recorrido-1.mp4',
+    poster:    '/assets/images/recorrido-1-poster.avif',
     duration:  '0:24',
   },
   {
     id: 'recorrido-2',
     title: 'Vista de Amenidades',
     subtitle: 'Piscina, jardines y áreas recreativas',
-    videoWebm: '/src/assets/Videos/recorrido-2.webm',
-    videoMp4:  '/src/assets/Videos/recorrido-2.mp4',
-    poster:    '/src/assets/images/recorrido-2-poster.avif',
+    videoWebm: '/assets/videos/recorrido-2.webm',
+    videoMp4:  '/assets/videos/recorrido-2.mp4',
+    poster:    '/assets/images/recorrido-2-poster.avif',
     duration:  '0:24',
   },
 ];
