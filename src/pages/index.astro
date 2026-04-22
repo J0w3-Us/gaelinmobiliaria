@@ -6,7 +6,8 @@
  * Toda la lógica y datos de cada sección viven en su feature/layout.
  *
  * Orden de secciones:
- *   Hero → Showcase (recorridos) → Lotes → Contacto
+ *   Hero → QuiénesSomos → Showcase (recorridos) → Contacto
+ *   LotesSection: oculta temporalmente por decisión del cliente.
  *   ContactFab (FAB global, fixed) montado al final del body.
  */
 import MainLayout from '../layouts/MainLayout.astro';
@@ -15,6 +16,7 @@ import Showcase from '../features/showcase/Showcase.astro';
 import LotesSection from '../features/lotes/LotesSection.astro';
 import ContactSection from '../features/contact/ContactSection.astro';
 import { ContactFab } from '../features/contact';
+import { CompanyInfo } from '../features/about';
 import { SITE_CONFIG } from '../shared/config/site-settings';
 
 const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CONFIG.whatsappMessage}`;
@@ -25,15 +27,12 @@ const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CON
   description="Vive o invierte en el mejor desarrollo de la región. Lotes residenciales en Ciudad Maderas."
 >
   <Hero />
-  <Showcase />
-  <LotesSection />
-  <ContactSection />
 
-  {/*
-    ContactFab — speed-dial global.
-    Mounted last so it renders on top of all content (z-50 via fixed).
-    client:idle → hydrates after first paint, never blocks LCP.
-  */}
+  {/* QUIÉNES SOMOS — sección de marca y video recorrido-2 */}
+  <CompanyInfo client:load />
+
+  <Showcase />
+
   <ContactFab
     client:idle
     whatsappUrl={whatsappUrl}

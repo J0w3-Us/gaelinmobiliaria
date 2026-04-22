@@ -1,44 +1,18 @@
 ---
 /**
- * Showcase.astro — Wraps the VideoGrid React island.
+ * Showcase.astro — Galería interactiva + recorridos en video.
  *
- * Data lives here (server-side), not in index.astro.
- * VideoGrid only receives serializable props.
+ * Tabbed gallery: Privada · Pública · General · Amenidades
+ * Videos: autoplay activado por IntersectionObserver (solo cuando son visibles
+ *         y el navegador puede reproducirlos — sin flashes ni reproducciones fantasma).
  *
- * Paths → /assets/videos/* and /assets/images/*
- * Files live in public/ → copied verbatim to dist/ → same URL in dev & prod.
+ * client:visible → el componente sólo hidrata cuando entra al viewport,
+ * nunca bloquea LCP.
  */
-import { VideoGrid } from './index';
-import type { VideoItem } from '../../shared/types/index.d';
-
-const videos: VideoItem[] = [
-  {
-    id: 'recorrido-1',
-    title: 'Recorrido General — Ciudad Maderas',
-    subtitle: 'Áreas comunes y acceso principal',
-    videoWebm: '/assets/videos/recorrido-1.webm',
-    videoMp4:  '/assets/videos/recorrido-1.mp4',
-    poster:    '/assets/images/recorrido-1-poster.avif',
-    duration:  '0:24',
-  },
-  {
-    id: 'recorrido-2',
-    title: 'Vista de Amenidades',
-    subtitle: 'Piscina, jardines y áreas recreativas',
-    videoWebm: '/assets/videos/recorrido-2.webm',
-    videoMp4:  '/assets/videos/recorrido-2.mp4',
-    poster:    '/assets/images/recorrido-2-poster.avif',
-    duration:  '0:24',
-  },
-];
+import { PropertyShowcase } from './index';
 ---
 
-<!--
-  client:visible → VideoGrid only hydrates when the section enters the viewport.
-  The video DOM is never created until the user clicks a card (handled inside VideoGrid).
--->
-<VideoGrid
+<PropertyShowcase
   client:visible
-  videos={videos}
-  sectionTitle="Recorridos Virtuales"
+  sectionTitle="Galería del Desarrollo"
 />

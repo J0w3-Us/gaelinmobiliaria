@@ -1,70 +1,187 @@
 ---
+/**
+ * HeroBackground.astro — Full-viewport video background for the Hero section.
+ *
+ * Architecture decision: kept as .astro (not React) so the <video> element
+ * never enters the React hydration tree — zero JS overhead for a decorative asset.
+ *
+ * Props (all required, sourced from SITE_CONFIG):
+ *   videoWebm — primary source, VP9 codec (Chrome / Firefox / Edge)
+ *   videoMp4  — fallback source, H.264 codec (Safari / iOS)
+ *   poster    — AVIF image shown before video is ready (prevents black flash)
+ *
+ * Rendering strategy:
+ *  1. Poster <img> is visible immediately (fetchpriority=high, z-index 0)
+ *  2. Video starts at opacity:0 so the poster shows through during load
+ *  3. canplaythrough fires → 600ms CSS transition fades video in over poster
+ *  4. Hard 3-second timeout: if readyState < HAVE_CURRENT_DATA, video is hidden
+ *     and the poster img remains as the permanent fallback (no black rectangle)
+ *  5. onerror on <video>: same poster-fallback path
+ */
+
 interface Props {
   videoWebm: string;
-  videoMp4: string;
-  poster: string;
-  width?: number;
-  height?: number;
+  videoMp4:  string;
+  poster:    string;
 }
 
-const { videoWebm, videoMp4, poster, width = 848, height = 480 } = Astro.props;
+const { videoWebm, videoMp4, poster } = Astro.props;
 ---
 
+<!--
+  video-wrapper class → globals.css:
+    isolation: isolate        (Safari iOS clip fix)
+    transform: translateZ(0)  (wrapper on GPU layer)
+-->
 <section
   id="hero"
-  class="relative w-full overflow-hidden"
+  class="video-wrapper relative w-full overflow-hidden"
   style="height: 100svh"
   aria-label="Sección principal"
 >
-  {/* ── Background video — decorative, no controls ── */}
+  <!--
+    Poster fallback image.
+    • Visible by default — the canplaythrough handler hides it once video fades in.
+    • fetchpriority="high" → browser fetches this before non-critical resources,
+      so it appears immediately even before the video bytes arrive.
+    • If the video fails entirely, this image stays visible permanently.
+  -->
+  <img
+    id="hero-poster"
+    src={poster}
+    alt=""
+    aria-hidden="true"
+    fetchpriority="high"
+    class="absolute inset-0 w-full h-full object-cover"
+    style="z-index: 0;"
+  />
+
+  <!--
+    Background video — decorative, muted, auto-looping.
+
+    GPU acceleration (inline style, not class, to guarantee specificity):
+      transform: translateZ(0)          → promote to GPU compositing layer
+      backface-visibility: hidden        → eliminate WebKit flicker on layer init
+      -webkit-backface-visibility: hidden → same, Safari-prefixed
+      will-change: transform             → proactive GPU allocation hint
+
+    Starts at opacity:0 — the JS below transitions it to 1 after canplaythrough.
+    transition: opacity 0.6s ease ensures a smooth crossfade over the poster.
+
+    playsInline: REQUIRED for iOS Safari — without it the video opens fullscreen.
+    preload="auto": hero is above the fold and the LCP asset; load immediately.
+    muted: required for autoplay without a user gesture (browser policy).
+  -->
   <video
+    id="hero-video"
     autoplay
     muted
     loop
     playsinline
     poster={poster}
-    width={width}
-    height={height}
-    class="absolute inset-0 w-full h-full object-cover"
-    style="z-index: 0"
+    preload="auto"
     aria-hidden="true"
+    class="absolute inset-0 w-full h-full object-cover"
+    style={[
+      "z-index: 0;",
+      "opacity: 0;",
+      "transition: opacity 0.6s ease;",
+      "transform: translateZ(0);",
+      "backface-visibility: hidden;",
+      "-webkit-backface-visibility: hidden;",
+      "will-change: transform;",
+    ].join(" ")}
   >
+    <!-- WebM first: VP9, 20-50% smaller than H.264 for same quality -->
     <source src={videoWebm} type="video/webm" />
-    <source src={videoMp4} type="video/mp4" />
+    <!-- MP4 second: H.264 fallback for Safari 14 and older iOS -->
+    <source src={videoMp4}  type="video/mp4"  />
   </video>
 
-  {/*
-    ── Multi-layer overlay system ────────────────────────────────────────────
-    Layer 1 (cinematic vignette):  subtle dark ring around all edges
-    Layer 2 (bottom fade):         strong black gradient from bottom → center
-    Layer 3 (top scrim):           light black at top for navbar legibility
-    Together these preserve video colour in the centre while keeping
-    all text areas highly legible — no more washed-out headings.
-  */}
-
-  {/* Layer 1 — cinematic vignette */}
+  <!--
+    Overlay Layer 1 — Bottom-to-top gradient.
+    Creates the dark reading area where headline copy lives.
+    Stops at 50% so the upper half of the video remains fully visible.
+    DO NOT use mix-blend-mode — causes banding artifacts on Safari iOS.
+  -->
   <div
-    class="absolute inset-0 pointer-events-none"
-    style="z-index: 1; background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%)"
     aria-hidden="true"
+    class="absolute inset-0 pointer-events-none"
+    style="z-index: 1; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)"
   ></div>
 
-  {/* Layer 2 — strong bottom-to-midpoint fade (where copy lives) */}
+  <!--
+    Overlay Layer 2 — Uniform dim across the full video.
+    Lifts text contrast without blacking out the video centre.
+    rgba(0,0,0,0.15) is barely perceptible but measurably improves WCAG contrast.
+  -->
   <div
-    class="absolute inset-0 pointer-events-none"
-    style="z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.60) 30%, rgba(0,0,0,0.15) 55%, transparent 75%)"
     aria-hidden="true"
+    class="absolute inset-0 pointer-events-none"
+    style="z-index: 1; background: rgba(0,0,0,0.15)"
   ></div>
 
-  {/* Layer 3 — top scrim for navbar */}
-  <div
-    class="absolute inset-0 pointer-events-none"
-    style="z-index: 3; background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 18%)"
-    aria-hidden="true"
-  ></div>
-
-  {/* ── Interactive children — sit above all overlays ── */}
+  <!-- Interactive children (HeroContent, PlayButton) sit above overlays -->
   <div class="absolute inset-0" style="z-index: 10">
     <slot />
   </div>
 </section>
+
+<!--
+  Inline script — executes immediately, no module bundling overhead.
+  is:inline prevents Astro from hoisting or deduplicating the script.
+
+  Logic:
+    canplaythrough → browser has enough data to play without buffering stops
+                  → fade video in, then remove poster from layout
+    setTimeout 3s → hard fallback if canplaythrough never fires (slow network)
+    onerror       → network failure or unsupported codec → keep poster visible
+-->
+<script is:inline>
+(function () {
+  var video   = document.getElementById('hero-video');
+  var poster  = document.getElementById('hero-poster');
+  var shown   = false;
+
+  if (!video) return;
+
+  function revealVideo() {
+    if (shown) return;
+    shown = true;
+    /* Fade video in over 600ms (see transition in inline style) */
+    video.style.opacity = '1';
+    /* Remove poster from the paint tree after the fade completes */
+    setTimeout(function () {
+      if (poster) poster.style.display = 'none';
+    }, 650);
+  }
+
+  /* Primary path: canplaythrough — enough buffer to play without stops */
+  video.addEventListener('canplaythrough', revealVideo, { once: true });
+
+  /* bfcache / fast revisit: video may already be ready before listener attaches */
+  /* HAVE_ENOUGH_DATA = 4 */
+  if (video.readyState >= 4) { revealVideo(); }
+
+  /* Hard timeout: 3 s — show poster permanently on very slow connections */
+  setTimeout(function () {
+    if (!shown) {
+      /* Video not ready — hide the elem so it does not flash later */
+      video.style.display = 'none';
+      if (poster) {
+        poster.style.display = 'block';
+        poster.style.opacity = '1';
+      }
+    }
+  }, 3000);
+
+  /* Network/decode error — poster stays, video is removed from paint */
+  video.addEventListener('error', function () {
+    video.style.display = 'none';
+    if (poster) {
+      poster.style.display = 'block';
+      poster.style.opacity = '1';
+    }
+  }, { once: true });
+})();
+</script>

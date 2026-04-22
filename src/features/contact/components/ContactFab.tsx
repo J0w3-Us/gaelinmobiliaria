@@ -142,7 +142,9 @@ export const ContactFab: React.FC<ContactFabProps> = ({ whatsappUrl, phoneNumber
 
             const ButtonTag = action.href ? 'a' : 'button';
             const linkProps = action.href
-              ? { href: action.href, target: '_blank', rel: 'noopener noreferrer' }
+              ? action.id === 'whatsapp'
+                ? { href: action.href, target: '_blank', rel: 'noopener noreferrer' }
+                : { href: action.href }  // tel: no abre nueva pestaña
               : { onClick: action.onClick, type: 'button' as const };
 
             return (
