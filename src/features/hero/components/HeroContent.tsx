@@ -32,20 +32,12 @@ export const HeroContent: React.FC<HeroContentProps> = ({
       </span>
 
       {/* H1 — strong text shadow so it reads over any video frame */}
-      <h1
-        className="text-[#F5E6C8] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08]"
-        style={{
-          textShadow: '0 2px 24px rgba(0,0,0,0.70), 0 1px 4px rgba(0,0,0,0.90)',
-        }}
-      >
+      <h1 className="text-[#F5E6C8] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
         {title}
       </h1>
 
       {/* Subtitle */}
-      <p
-        className="text-[#F5E6C8]/80 text-base md:text-lg max-w-xl font-light"
-        style={{ textShadow: '0 1px 8px rgba(0,0,0,0.80)' }}
-      >
+      <p className="text-[#F5E6C8]/80 text-base md:text-lg max-w-xl font-light drop-shadow-[0_1px_8px_rgba(0,0,0,0.8)]">
         {subtitle}
       </p>
 

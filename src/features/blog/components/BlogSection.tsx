@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useBlogVideo, type VideoCard } from '../hooks/useBlogVideo';
 
 // ─── GPU acceleration ─────────────────────────────────────────────────────────
 const GPU: React.CSSProperties = {
@@ -8,35 +9,26 @@ const GPU: React.CSSProperties = {
   willChange: 'transform',
 } as const;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface VideoCard {
-  number: string;
-  title: string;
-  tag: string;
-  thumbnail: string;
-  videoSrc: string;
-}
-
 const CARDS: VideoCard[] = [
   {
     number: '01',
     title: 'Modelo Aura',
-    tag: 'Recorrido Interior',
+    tag: 'Recorrido Exterior',
     thumbnail: '/assets/images/modelo_aura.jpg',
     videoSrc: '/assets/videos/recorrido1.mp4',
   },
   {
     number: '02',
-    title: 'Modelos Disponibles',
+    title: 'Recorrido Aura',
     tag: 'Recorrido Interior',
     thumbnail: '/assets/images/casa1.jpg',
     videoSrc: '/assets/videos/recorrido2.mp4',
   },
   {
     number: '03',
-    title: 'Espacios Interiores',
-    tag: 'Lifestyle',
-    thumbnail: '/assets/images/sala1.jpg',
+    title: 'Vlog Madera City',
+    tag: 'Un día en la ciudad',
+    thumbnail: '/assets/images/casa1.jpg',
     videoSrc: '/assets/videos/blog1.mp4',
   },
   {
@@ -48,95 +40,25 @@ const CARDS: VideoCard[] = [
   },
 ];
 
+const INITIAL_CARD: VideoCard = {
+  number: '00',
+  title: 'Panorámica · Ciudad Maderas',
+  tag: 'RECORRIDO PRINCIPAL',
+  thumbnail: '/assets/images/paronamica_ciudad_madera.jpg',
+  videoSrc: '/assets/videos/paronamica.mp4',
+};
+
 // ─── BlogSection ─────────────────────────────────────────────────────────────
 export const BlogSection: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const posterRef = useRef<HTMLImageElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
-  
-  // State for the active video displayed on the left
-  const [activeCard, setActiveCard] = useState<VideoCard>({
-    number: '00',
-    title: 'Panorámica · Ciudad Maderas',
-    tag: 'RECORRIDO PRINCIPAL',
-    thumbnail: '/assets/images/paronamica_ciudad_madera.jpg',
-    videoSrc: '/assets/videos/paronamica.mp4',
-  });
-
-  // ── Sync play state with native events ────────────────────────────────────
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay  = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
-    v.addEventListener('play',  onPlay);
-    v.addEventListener('pause', onPause);
-    v.addEventListener('ended', onEnded);
-    return () => {
-      v.removeEventListener('play',  onPlay);
-      v.removeEventListener('pause', onPause);
-      v.removeEventListener('ended', onEnded);
-    };
-  }, []);
-
-  // ── Autoplay muted when video enters viewport ─────────────────────────────
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          v.muted = true;
-          v.play()
-            .then(() => {
-              // fade out the thumbnail overlay once playing
-              if (posterRef.current) posterRef.current.style.opacity = '0';
-            })
-            .catch(() => {});
-        } else {
-          v.pause();
-        }
-      },
-      { threshold: 0.35 },
-    );
-    obs.observe(v);
-    return () => obs.disconnect();
-  }, []);
-
-  // ── Play with audio on explicit click ─────────────────────────────────────
-  const handlePlay = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = false;
-    v.play()
-      .then(() => {
-        if (posterRef.current) posterRef.current.style.opacity = '0';
-      })
-      .catch(() => {});
-  }, []);
-
-  // ── Handle Side Card Selection ────────────────────────────────────────────
-  const handleSelectCard = useCallback((card: VideoCard) => {
-    setActiveCard(card);
-    setIsPlaying(false);
-    if (posterRef.current) posterRef.current.style.opacity = '1';
-    
-    // Load and play the newly selected video
-    const v = videoRef.current;
-    if (v) {
-      v.pause();
-      v.src = card.videoSrc;
-      v.load();
-      v.muted = false; // When they select a specific video, we assume they want audio
-      v.play()
-        .then(() => {
-          if (posterRef.current) posterRef.current.style.opacity = '0';
-        })
-        .catch(() => {});
-    }
-  }, []);
+  const {
+    videoRef,
+    posterRef,
+    isPlaying,
+    activeCard,
+    handlePlay,
+    handleSelectCard
+  } = useBlogVideo(INITIAL_CARD);
 
   // ── Header entrance animation ─────────────────────────────────────────────
   useEffect(() => {
@@ -154,42 +76,20 @@ export const BlogSection: React.FC = () => {
     <>
       <section
         id="blog"
-        className="bg-[#0f0f0f] py-14 px-6 md:px-14"
-        style={{ borderTop: '1px solid rgba(201,168,76,0.10)' }}
+        className="bg-[#0f0f0f] py-14 px-6 md:px-14 border-t border-[#C9A84C]/10"
       >
         <div className="max-w-7xl mx-auto">
 
           {/* ── Header ──────────────────────────────────────────────────── */}
           <div ref={headerRef} className="blog-header mb-8 flex items-end justify-between gap-4">
             <div>
-              <div style={{ width: 40, height: 1, backgroundColor: '#C9A84C', marginBottom: 12 }} aria-hidden="true" />
-              <p
-                className="text-[10px] uppercase tracking-[0.22em]"
-                style={{ color: '#C9A84C', fontFamily: '"DM Sans", sans-serif' }}
-              >
+              <div className="w-10 h-px bg-[#C9A84C] mb-3" aria-hidden="true" />
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#C9A84C] font-sans">
                 RECORRIDOS · CIUDAD MADERAS
               </p>
-              <h2
-                className="mt-2 leading-tight"
-                style={{
-                  fontFamily: '"Cormorant Garamond", serif',
-                  fontSize: 'clamp(1.7rem, 3vw, 2.4rem)',
-                  fontWeight: 300,
-                  color: '#F5E6C8',
-                }}
-              >
+              <h2 className="mt-2 leading-tight font-serif text-[clamp(1.7rem,3vw,2.4rem)] font-light text-[#F5E6C8]">
                 Conoce cada rincón antes de decidir
               </h2>
-            </div>
-            <div className="hidden md:block shrink-0" aria-hidden="true">
-              <span style={{
-                fontFamily: '"Cormorant Garamond", serif',
-                fontSize: 80,
-                fontWeight: 300,
-                color: 'rgba(201,168,76,0.07)',
-                lineHeight: 1,
-                userSelect: 'none',
-              }}>04</span>
             </div>
           </div>
 
@@ -199,24 +99,15 @@ export const BlogSection: React.FC = () => {
             {/* LEFT — main video player */}
             <div className="flex-1 min-w-0">
               <div
-                className="relative overflow-hidden rounded-xl w-full group"
-                style={{
-                  aspectRatio: '16 / 9',
-                  background: '#111',
-                  border: '1px solid rgba(201,168,76,0.15)',
-                }}
+                className="relative overflow-hidden rounded-xl w-full group bg-[#111] border border-[#C9A84C]/15 aspect-video"
               >
                 {/* Thumbnail image — shown before/during load, fades out on play */}
                 <img
                   ref={posterRef}
                   src={activeCard.thumbnail}
                   alt={activeCard.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{
-                    ...GPU,
-                    zIndex: 1,
-                    transition: 'opacity 0.5s ease',
-                  }}
+                  className="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-500"
+                  style={GPU}
                   aria-hidden="true"
                 />
 
@@ -228,31 +119,22 @@ export const BlogSection: React.FC = () => {
                   loop
                   preload="auto"
                   controls={isPlaying} // Show native controls once playing
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ ...GPU, zIndex: 2 }}
+                  className="absolute inset-0 w-full h-full object-cover z-20"
+                  style={GPU}
                 >
                   <source src={activeCard.videoSrc} type="video/mp4" />
                 </video>
 
                 {/* Overlay — fades out when playing */}
                 <div
-                  className="absolute inset-0 transition-opacity duration-400"
-                  style={{
-                    zIndex: 3,
-                    opacity: isPlaying ? 0 : 1,
-                    pointerEvents: isPlaying ? 'none' : 'auto',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.12) 55%, transparent 100%)',
-                  }}
+                  className={`absolute inset-0 transition-opacity duration-400 z-30 bg-gradient-to-t from-black/80 via-black/10 to-transparent ${isPlaying ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 >
                   {/* Meta — bottom left */}
                   <div className="absolute bottom-4 left-4">
-                    <span
-                      className="inline-block text-[9px] px-2 py-0.5 mb-2 uppercase"
-                      style={{ border: '1px solid rgba(201,168,76,0.4)', color: '#C9A84C', fontFamily: '"DM Sans", sans-serif', letterSpacing: '0.1em' }}
-                    >
+                    <span className="inline-block text-[9px] px-2 py-0.5 mb-2 uppercase border border-[#C9A84C]/40 text-[#C9A84C] font-sans tracking-widest">
                       {activeCard.tag}
                     </span>
-                    <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 'clamp(1.1rem, 2vw, 1.45rem)', fontWeight: 300, color: '#F5E6C8', lineHeight: 1.2 }}>
+                    <p className="font-serif text-[clamp(1.1rem,2vw,1.45rem)] font-light text-[#F5E6C8] leading-snug">
                       {activeCard.title}
                     </p>
                   </div>
@@ -264,22 +146,13 @@ export const BlogSection: React.FC = () => {
                     className="
                       absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                       flex items-center justify-center rounded-full
-                      transition-all duration-300 hover:scale-110
+                      transition-all duration-300 hover:scale-110 hover:border-[#C9A84C]/85
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A84C]
+                      w-[58px] h-[58px] border-[1.5px] border-[#F5E6C8]/55 bg-black/45 backdrop-blur-md
                     "
-                    style={{
-                      width: 58,
-                      height: 58,
-                      border: '1.5px solid rgba(245,230,200,0.55)',
-                      background: 'rgba(0,0,0,0.45)',
-                      backdropFilter: 'blur(6px)',
-                      WebkitBackdropFilter: 'blur(6px)',
-                    }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201,168,76,0.85)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(245,230,200,0.55)'; }}
                     aria-label={`Reproducir ${activeCard.title}`}
                   >
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#F5E6C8" aria-hidden="true" style={{ marginLeft: 3 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#F5E6C8" aria-hidden="true" className="ml-1">
                       <polygon points="5,3 19,12 5,21" />
                     </svg>
                   </button>
@@ -287,7 +160,7 @@ export const BlogSection: React.FC = () => {
               </div>
 
               {/* Caption below video */}
-              <p className="mt-2 text-[11px] tracking-wider" style={{ color: 'rgba(245,230,200,0.3)', fontFamily: '"DM Sans", sans-serif' }}>
+              <p className="mt-2 text-[11px] tracking-wider text-[#F5E6C8]/30 font-sans">
                 Videos reales del desarrollo · Sin renders · Sin promesas
               </p>
             </div>
@@ -365,11 +238,10 @@ const SideCard: React.FC<SideCardProps> = ({ card, index, onSelect, isActive }) 
   return (
     <div
       ref={ref}
-      className="sidecard flex gap-3 items-stretch rounded-lg overflow-hidden cursor-pointer"
+      className={`sidecard flex gap-3 items-stretch rounded-lg overflow-hidden cursor-pointer transition-all duration-350 ${isActive ? 'bg-[#C9A84C]/5 border-[#C9A84C]/35' : 'bg-[#1a1a1a] border-[#F5E6C8]/[0.06] hover:border-[#C9A84C]/35'}`}
       style={{
-        background: isActive ? 'rgba(201,168,76,0.05)' : '#1a1a1a',
-        border: (hovered || isActive) ? '1px solid rgba(201,168,76,0.35)' : '1px solid rgba(245,230,200,0.06)',
-        transition: 'all 350ms ease',
+        borderWidth: 1,
+        borderStyle: 'solid',
       }}
       onClick={() => onSelect(card)}
       onMouseEnter={() => setHovered(true)}
@@ -380,26 +252,18 @@ const SideCard: React.FC<SideCardProps> = ({ card, index, onSelect, isActive }) 
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onSelect(card); }}
     >
       {/* Thumbnail — square-ish */}
-      <div
-        className="relative overflow-hidden shrink-0"
-        style={{ width: 90, minHeight: 68 }}
-      >
+      <div className="relative overflow-hidden shrink-0 w-[90px] min-h-[68px]">
         <img
           src={card.thumbnail}
           alt={card.title}
           loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            transform: hovered ? 'scale(1.07)' : 'scale(1)',
-            transition: 'transform 500ms ease-out',
-          }}
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out ${hovered ? 'scale-105' : 'scale-100'}`}
         />
-        <div className="absolute inset-0" style={{ background: isActive ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.45)' }} />
+        <div className={`absolute inset-0 ${isActive ? 'bg-black/10' : 'bg-black/45'}`} />
 
         {/* Mini play / indicator */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full"
-          style={{ width: 26, height: 26, border: isActive ? '1px solid #C9A84C' : '1px solid rgba(245,230,200,0.45)', background: isActive ? '#C9A84C' : 'rgba(0,0,0,0.55)', transition: 'all 300ms ease' }}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full w-[26px] h-[26px] transition-all duration-300 border ${isActive ? 'border-[#C9A84C] bg-[#C9A84C]' : 'border-[#F5E6C8]/45 bg-black/55'}`}
           aria-hidden="true"
         >
           {isActive ? (
@@ -408,7 +272,7 @@ const SideCard: React.FC<SideCardProps> = ({ card, index, onSelect, isActive }) 
               <div className="w-[2px] h-[8px] bg-[#0f0f0f] animate-pulse" style={{ animationDelay: '150ms' }} />
             </div>
           ) : (
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="#F5E6C8" style={{ marginLeft: 2 }}>
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="#F5E6C8" className="ml-0.5">
               <polygon points="5,3 19,12 5,21" />
             </svg>
           )}
@@ -416,8 +280,7 @@ const SideCard: React.FC<SideCardProps> = ({ card, index, onSelect, isActive }) 
 
         {/* Number badge */}
         <span
-          className="absolute top-1 left-1.5"
-          style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 10, color: isActive ? '#F5E6C8' : 'rgba(201,168,76,0.75)', letterSpacing: '0.08em', transition: 'color 300ms ease' }}
+          className={`absolute top-1 left-1.5 font-serif text-[10px] tracking-wider transition-colors duration-300 ${isActive ? 'text-[#F5E6C8]' : 'text-[#C9A84C]/75'}`}
           aria-hidden="true"
         >
           {card.number}
@@ -426,26 +289,13 @@ const SideCard: React.FC<SideCardProps> = ({ card, index, onSelect, isActive }) 
 
       {/* Metadata */}
       <div className="flex flex-col justify-center py-2 pr-3 min-w-0">
-        <p
-          className="uppercase truncate"
-          style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 9, letterSpacing: '0.16em', color: isActive ? '#C9A84C' : 'rgba(201,168,76,0.7)', transition: 'color 300ms ease' }}
-        >
+        <p className={`uppercase truncate font-sans text-[9px] tracking-[0.16em] transition-colors duration-300 ${isActive ? 'text-[#C9A84C]' : 'text-[#C9A84C]/70'}`}>
           {card.tag}
         </p>
-        <p
-          className="mt-0.5 leading-tight truncate"
-          style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: 13, color: '#F5E6C8', fontWeight: 400 }}
-        >
+        <p className="mt-0.5 leading-tight truncate font-serif text-[13px] text-[#F5E6C8] font-normal">
           {card.title}
         </p>
-        <p
-          className="mt-1.5 text-[10px]"
-          style={{
-            fontFamily: '"DM Sans", sans-serif',
-            color: isActive ? '#C9A84C' : (hovered ? 'rgba(245,230,200,0.6)' : 'rgba(245,230,200,0.3)'),
-            transition: 'color 280ms ease',
-          }}
-        >
+        <p className={`mt-1.5 text-[10px] font-sans transition-colors duration-200 ${isActive ? 'text-[#C9A84C]' : (hovered ? 'text-[#F5E6C8]/60' : 'text-[#F5E6C8]/30')}`}>
           {isActive ? 'Reproduciendo...' : 'Reproducir →'}
         </p>
       </div>

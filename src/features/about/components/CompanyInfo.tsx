@@ -16,34 +16,24 @@ export function CompanyInfo() {
   return (
     <section
       id="quienes-somos"
-      style={{ backgroundColor: "#0f0f0f", padding: "6rem 1.5rem" }}
-      className="md:px-12"
+      className="bg-[#0f0f0f] py-24 px-6 md:px-12"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
         {/* ── Lado Izquierdo: Texto ── */}
         <div className="flex flex-col">
           {/* Eyebrow */}
-          <p
-            className="text-sm uppercase tracking-widest font-semibold"
-            style={{ color: "#C9A84C" }}
-          >
+          <p className="text-sm uppercase tracking-widest font-semibold text-[#C9A84C]">
             Respaldo y Experiencia
           </p>
 
           {/* Título */}
-          <h2
-            className="text-3xl md:text-4xl font-bold leading-tight max-w-lg mt-3"
-            style={{ color: "#F5E6C8" }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight max-w-lg mt-3 text-[#F5E6C8]">
             Más de una década construyendo patrimonio en la Península
           </h2>
 
           {/* Párrafo 1 */}
-          <p
-            className="text-base leading-relaxed mt-5"
-            style={{ color: "rgba(245, 230, 200, 0.7)" }}
-          >
+          <p className="text-base leading-relaxed mt-5 text-[#F5E6C8]/70">
             Gael Group Inmobiliaria es el aliado estratégico de Ciudad Maderas,
             el desarrollo residencial premium ubicado en el corazón de Yucatán.
             Con más de 10 años en el mercado inmobiliario de la Península,
@@ -52,10 +42,7 @@ export function CompanyInfo() {
           </p>
 
           {/* Párrafo 2 */}
-          <p
-            className="text-base leading-relaxed mt-4"
-            style={{ color: "rgba(245, 230, 200, 0.7)" }}
-          >
+          <p className="text-base leading-relaxed mt-4 text-[#F5E6C8]/70">
             Ofrecemos crédito directo sin aval y sin revisión de buró,
             con pagos desde $1,120 al mes. Tu terreno puede ser tuyo hoy.
           </p>
@@ -64,35 +51,21 @@ export function CompanyInfo() {
           <div className="flex flex-wrap gap-2 mt-6">
             {/* Crédito Directo — dorado sólido */}
             <Badge
-              style={{
-                backgroundColor: "#C9A84C",
-                color: "#0f0f0f",
-                fontWeight: 600,
-              }}
+              className="bg-[#C9A84C] text-[#0f0f0f] font-semibold hover:bg-[#C9A84C]/90"
             >
               Crédito Directo
             </Badge>
 
             {/* Sin Buró — dorado outline */}
             <Badge
-              style={{
-                backgroundColor: "rgba(201, 168, 76, 0.15)",
-                color: "#C9A84C",
-                border: "1px solid rgba(201, 168, 76, 0.4)",
-                fontWeight: 600,
-              }}
+              className="bg-[#C9A84C]/15 text-[#C9A84C] border border-[#C9A84C]/40 font-semibold hover:bg-[#C9A84C]/25"
             >
               Sin Buró
             </Badge>
 
             {/* Certeza Jurídica — dorado outline */}
             <Badge
-              style={{
-                backgroundColor: "rgba(201, 168, 76, 0.15)",
-                color: "#C9A84C",
-                border: "1px solid rgba(201, 168, 76, 0.4)",
-                fontWeight: 600,
-              }}
+              className="bg-[#C9A84C]/15 text-[#C9A84C] border border-[#C9A84C]/40 font-semibold hover:bg-[#C9A84C]/25"
             >
               Certeza Jurídica
             </Badge>
@@ -100,23 +73,15 @@ export function CompanyInfo() {
         </div>
 
         {/* ── Lado Derecho: Video ── */}
-        <div
-          className="relative rounded-2xl overflow-hidden"
-          style={{
-            aspectRatio: "16 / 9",
-            border: "1px solid rgba(201, 168, 76, 0.2)",
-            boxShadow: "inset 0 0 0 1px rgba(201,168,76,0.15)",
-          }}
-        >
+        <div className="relative rounded-2xl overflow-hidden aspect-video border border-[#C9A84C]/20 shadow-[inset_0_0_0_1px_rgba(201,168,76,0.15)]">
           <video
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transform-gpu"
             poster="/assets/images/ciudad_madera.jpg"
             src="/assets/videos/que_es.mp4"
             controls
             playsInline
             preload="metadata"
             style={{
-              transform: "translateZ(0)",
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               willChange: "transform",
