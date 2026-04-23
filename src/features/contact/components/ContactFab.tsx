@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+import { CotizarModal } from './CotizarModal';
+import { SITE_CONFIG } from '@/shared/config/site-settings';
 export interface ContactFabProps {
   whatsappUrl: string;
   phoneNumber: string;
@@ -19,6 +20,7 @@ interface Action {
 
 export const ContactFab: React.FC<ContactFabProps> = ({ whatsappUrl, phoneNumber }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCotizarOpen, setIsCotizarOpen] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
 
   // Close when clicking outside
@@ -41,11 +43,9 @@ export const ContactFab: React.FC<ContactFabProps> = ({ whatsappUrl, phoneNumber
     return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
-  const scrollToContacto = () => {
+  const openCotizarModal = () => {
     setIsOpen(false);
-    setTimeout(() => {
-      document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' });
-    }, 200);
+    setIsCotizarOpen(true);
   };
 
   const actions: Action[] = [
@@ -82,7 +82,7 @@ export const ContactFab: React.FC<ContactFabProps> = ({ whatsappUrl, phoneNumber
       id: 'cotizar',
       label: 'Cotizar',
       sublabel: 'Solicita tu presupuesto',
-      onClick: scrollToContacto,
+      onClick: openCotizarModal,
       icon: (
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -247,6 +247,13 @@ export const ContactFab: React.FC<ContactFabProps> = ({ whatsappUrl, phoneNumber
           </span>
         </button>
       </div>
+
+      <CotizarModal
+        isOpen={isCotizarOpen}
+        onClose={() => setIsCotizarOpen(false)}
+        whatsappNumber={SITE_CONFIG.whatsappNumber}
+        whatsappMessage={SITE_CONFIG.whatsappCotizarMsg}
+      />
     </>
   );
 };

@@ -6,7 +6,7 @@
  * Toda la lógica y datos de cada sección viven en su feature/layout.
  *
  * Orden de secciones:
- *   Hero → QuiénesSomos → Showcase (recorridos) → Contacto
+ *   Hero → QuiénesSomos → Showcase (amenidades) → Blog (videos) → Contacto
  *   LotesSection: oculta temporalmente por decisión del cliente.
  *   ContactFab (FAB global, fixed) montado al final del body.
  */
@@ -17,6 +17,7 @@ import LotesSection from '../features/lotes/LotesSection.astro';
 import ContactSection from '../features/contact/ContactSection.astro';
 import { ContactFab } from '../features/contact';
 import { CompanyInfo } from '../features/about';
+import { BlogSection } from '../features/blog';
 import { SITE_CONFIG } from '../shared/config/site-settings';
 
 const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CONFIG.whatsappMessage}`;
@@ -31,7 +32,11 @@ const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CON
   {/* QUIÉNES SOMOS — sección de marca y video recorrido-2 */}
   <CompanyInfo client:load />
 
+  {/* AMENIDADES — showcase del desarrollo */}
   <Showcase />
+
+  {/* VIDEOS — BlogSection editorial con recorridos */}
+  <BlogSection client:load />
 
   <ContactFab
     client:idle
@@ -39,3 +44,4 @@ const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${SITE_CON
     phoneNumber={SITE_CONFIG.phoneNumber}
   />
 </MainLayout>
+

@@ -14,16 +14,6 @@ export interface VideoItem {
   duration?: string;
 }
 
-export interface PropertyLot {
-  id: string;
-  name: string;
-  /** Area in m² */
-  area: number;
-  price: number;
-  status: 'disponible' | 'reservado' | 'vendido';
-  features: string[];
-}
-
 export interface ContactFormData {
   name: string;
   email: string;
@@ -42,4 +32,13 @@ export interface HeroProps {
   /** MP4 fallback for the modal video */
   modalVideoMp4: string;
   modalPoster?: string;
+}
+
+export interface GaleriaItem {
+  id: string;
+  categoria: string;
+  titulo: string;
+  descripcion?: string;
+  img: string;
+  pos: string;
 }

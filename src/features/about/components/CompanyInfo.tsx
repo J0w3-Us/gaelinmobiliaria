@@ -110,7 +110,8 @@ export function CompanyInfo() {
         >
           <video
             className="w-full h-full object-cover"
-            poster="/assets/images/recorrido-2-poster.avif"
+            poster="/assets/images/ciudad_madera.jpg"
+            src="/assets/videos/que_es.mp4"
             controls
             playsInline
             preload="metadata"
@@ -121,8 +122,6 @@ export function CompanyInfo() {
               willChange: "transform",
             }}
           >
-            <source src="/assets/Videos/recorrido-2.webm" type="video/webm" />
-            <source src="/assets/Videos/recorrido-2.mp4" type="video/mp4" />
             Tu navegador no soporta la reproducción de video HTML5.
           </video>
         </div>

@@ -68,20 +68,6 @@ export const HeroContent: React.FC<HeroContentProps> = ({
           </svg>
           Ver recorrido
         </button>
-
-        {/* Secondary — arena outline con backdrop */}
-        <button
-          onClick={handleScrollToLotes}
-          className="inline-flex justify-center items-center gap-2
-                     border border-[#F5E6C8]/55 text-[#F5E6C8]
-                     hover:bg-white/10 hover:border-[#F5E6C8]/80
-                     h-13 px-7 text-sm font-semibold tracking-wide
-                     bg-black/20 backdrop-blur-sm rounded-sm
-                     w-full sm:w-auto transition-all duration-200
-                     active:scale-[0.98]"
-        >
-          Conocer lotes
-        </button>
       </div>
     </div>
   );
